@@ -60,7 +60,7 @@ interface RecyclingRequestDetail {
 const PickupRequestDetailPage: React.FC = () => {
   const { id } = useParams();
   const router = useRouter();
-  const [request, setRequest] = useState<RecyclingRequestDetail | null>(null);
+  const [request, setRequest] = useState<any | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [receivers, setReceivers] = useState<Receiver[]>([]);
@@ -349,14 +349,13 @@ const PickupRequestDetailPage: React.FC = () => {
         {(request.status !== "pending") && (
           <div className="mt-6 p-4 bg-gray-100 rounded">{renderTrackOrderStatus()}</div>
         )}
-        {/* Hide Collection Notes, Collection Proof, and Received By for all statuses as per user feedback */}
-        {/* {(request.status !== "pending") && (
+        {(request.status === "received" || request.status === "collected") && (
           <div>
             <span className="font-semibold">Collection Notes:</span>{" "}
             {request.collectionNotes || "None"}
           </div>
         )}
-        {(request.status !== "pending") && (
+        {(request.status === "received" || request.status === "collected") && (
           <div>
             <span className="font-semibold">Collection Proof:</span>{" "}
             {request.collectionProof ? (
@@ -372,98 +371,138 @@ const PickupRequestDetailPage: React.FC = () => {
             )}
           </div>
         )}
-        {(request.status !== "pending") && (
+        {(request.status === "received" || request.status === "collected") && request.receivedBy && (
           <div>
             <span className="font-semibold">Received By:</span>{" "}
-            {request.receivedBy || "Not received yet"}
+            {request.receivedBy}
           </div>
-        )} */}
+        )}
 
-        {request.status === "pending" ? (
-          <>
-            {!request.assignedReceiver ||
-            Object.keys(request.assignedReceiver).length === 0 ||
-            request.assignedReceiver === "" ||
-            request.assignedReceiver === "not-assigned" ? (
-              <div className="mb-4">
-                <label htmlFor="receiverSelect" className="block mb-2 font-semibold">
-                  Select Receiver to Assign:
-                </label>
-                <select
-                  id="receiverSelect"
-                  value={selectedReceiverId}
-                  onChange={(e) => setSelectedReceiverId(e.target.value)}
-                  className="border p-2 rounded w-full max-w-xs"
-                >
-                  <option value="">-- Select Receiver --</option>
-                  {receivers.map((receiver) => (
-                    <option key={receiver.id || receiver._id} value={receiver.id || receiver._id}>
-                      {receiver.name} ({receiver.email})
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ) : (
-              <div className="mb-4">
-            <strong>Assigned to:</strong>{" "}
-            {(() => {
-              if (typeof request.assignedReceiver === "string") {
+      {request.status === "pending" ? (
+        <>
+          {!request.assignedReceiver ||
+          Object.keys(request.assignedReceiver).length === 0 ||
+          request.assignedReceiver === "" ||
+          request.assignedReceiver === "not-assigned" ? (
+            <div className="mb-4">
+              <label htmlFor="receiverSelect" className="block mb-2 font-semibold">
+                Select Receiver to Assign:
+              </label>
+              <select
+                id="receiverSelect"
+                value={selectedReceiverId}
+                onChange={(e) => setSelectedReceiverId(e.target.value)}
+                className="border p-2 rounded w-full max-w-xs"
+              >
+                <option value="">-- Select Receiver --</option>
+                {receivers.map((receiver) => (
+                  <option key={receiver.id || receiver._id} value={receiver.id || receiver._id}>
+                    {receiver.name} ({receiver.email})
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : (
+            <div className="mb-4">
+          <strong>Assigned to:</strong>{" "}
+          {(() => {
+            if (typeof request.assignedReceiver === "string") {
+              const receiver = receivers.find(
+                (r) => r.id === request.assignedReceiver || r._id === request.assignedReceiver
+              );
+              return receiver ? `${receiver.name} (${receiver.email})` : "Unknown Receiver";
+            }
+            if (request.assignedReceiver?.name && request.assignedReceiver?.email) {
+              return `${request.assignedReceiver.name} (${request.assignedReceiver.email})`;
+            }
+            return request.assignedReceiver?.name || "N/A";
+          })()}
+            </div>
+          )}
+          {!request.assignedReceiver ||
+          Object.keys(request.assignedReceiver).length === 0 ||
+          request.assignedReceiver === "" ||
+          request.assignedReceiver === "not-assigned" ? (
+            <button
+              className="bg-green-600 text-white py-2 px-4 rounded mr-4"
+              onClick={approvePickup}
+            >
+              Approve Pickup
+            </button>
+          ) : null}
+          {request.status === "received" && (
+            <button
+              className="bg-blue-600 text-white py-2 px-4 rounded mr-4"
+              onClick={async () => {
+                try {
+                  const userJSON = localStorage.getItem("user");
+                  const userLocal = userJSON ? JSON.parse(userJSON) : null;
+                  const userIdStr = userLocal ? String(userLocal.id) : "";
+                  const userRoleStr = userLocal && userLocal.role ? String(userLocal.role) : "user";
+
+                  const updates = {
+                    status: "received by receiver",
+                  };
+
+                  const response = await fetch("/api/recyclingRequests", {
+                    method: "PATCH",
+                    headers: {
+                      "Content-Type": "application/json",
+                      "x-user-id": userIdStr,
+                      "x-user-role": userRoleStr,
+                    },
+                    body: JSON.stringify({ id: request.id, updates }),
+                  });
+
+                  const result = await response.json();
+                  if (result.success) {
+                    alert("Status updated to received by receiver");
+                    // Update local state to reflect status change
+                    setRequest((prev: RecyclingRequestDetail | null) => prev ? { ...prev, status: "received by receiver" } : prev);
+                  } else {
+                    alert("Failed to update status: " + result.error);
+                  }
+                } catch (error) {
+                  alert("Error updating status: " + error);
+                }
+              }}
+            >
+              Received by Recycler
+            </button>
+          )}
+          <button
+            className="bg-gray-600 text-white py-2 px-4 rounded ml-4"
+            onClick={() => router.back()}
+          >
+            Back to Pickup Requests
+          </button>
+        </>
+      ) : (
+        <>
+          <div className="mb-4">
+            <strong>Status:</strong> {request.status || "N/A"}
+          </div>
+          <div className="mb-4">
+          <strong>Assigned to:</strong>{" "}
+          {typeof request.assignedReceiver === "string"
+            ? (() => {
                 const receiver = receivers.find(
                   (r) => r.id === request.assignedReceiver || r._id === request.assignedReceiver
                 );
-                return receiver ? `${receiver.name} (${receiver.email})` : "Unknown Receiver";
-              }
-              if (request.assignedReceiver?.name && request.assignedReceiver?.email) {
-                return `${request.assignedReceiver.name} (${request.assignedReceiver.email})`;
-              }
-              return request.assignedReceiver?.name || "N/A";
-            })()}
-              </div>
-            )}
-            {!request.assignedReceiver ||
-            Object.keys(request.assignedReceiver).length === 0 ||
-            request.assignedReceiver === "" ||
-            request.assignedReceiver === "not-assigned" ? (
-              <button
-                className="bg-green-600 text-white py-2 px-4 rounded mr-4"
-                onClick={approvePickup}
-              >
-                Approve Pickup
-              </button>
-            ) : null}
-            <button
-              className="bg-gray-600 text-white py-2 px-4 rounded ml-4"
-              onClick={() => router.back()}
-            >
-              Back to Pickup Requests
-            </button>
-          </>
-        ) : (
-          <>
-            <div className="mb-4">
-              <strong>Status:</strong> {request.status || "N/A"}
-            </div>
-            <div className="mb-4">
-            <strong>Assigned to:</strong>{" "}
-            {typeof request.assignedReceiver === "string"
-              ? (() => {
-                  const receiver = receivers.find(
-                    (r) => r.id === request.assignedReceiver || r._id === request.assignedReceiver
-                  );
-                  return receiver ? `${receiver.name} (${receiver.email})` : request.assignedReceiver;
-                })()
-              : request.assignedReceiver?.name && request.assignedReceiver?.email
-              ? `${request.assignedReceiver.name} (${request.assignedReceiver.email})`
-              : request.assignedReceiver?.name || "N/A"}
-            </div>
-            <button
-              className="bg-gray-600 text-white py-2 px-4 rounded ml-4"
-              onClick={() => router.back()}
-            >
-              Back to Pickup Requests
-            </button>
-          </>
-        )}
+                return receiver ? `${receiver.name} (${receiver.email})` : request.assignedReceiver;
+              })()
+            : request.assignedReceiver?.name && request.assignedReceiver?.email
+            ? `${request.assignedReceiver.name} (${request.assignedReceiver.email})`
+            : request.assignedReceiver?.name || "N/A"}
+          </div>
+          <button
+            className="bg-gray-600 text-white py-2 px-4 rounded ml-4"
+            onClick={() => router.back()}
+          >
+            Back to Pickup Requests
+          </button>
+        </>
+      )}
       </div>
     </div>
   );

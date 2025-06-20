@@ -14,9 +14,10 @@ interface PickupRequest {
   recycleItemFromForm?: string; // added to hold category from form
   category?: string; // added category field
   preferredContactNumber?: string; // added preferred contact number
+  alternateContactNumber?: string; // added alternate contact number
   pickupDate: string;
   pickupTime: string;
-  deviceCondition: string;
+  deviceCondition?: string;
   status: string;
   assignedReceiver: string;
   receiverEmail: string;
@@ -26,6 +27,7 @@ interface PickupRequest {
   createdAt: Date;
   collectionNotes?: string;
   collectionProof?: string; // base64 image string
+  specialInstructions?: string;
   userIdToShow?: string; // added to hold user id for display if needed
 }
 
@@ -178,8 +180,17 @@ const PickupRequestsPage: React.FC = () => {
       if (result.success) {
         // Instead of alert, set lastSubmittedRequest and show modal
         if (requestToUpdate) {
-          setLastSubmittedRequest(requestToUpdate);
-          sessionStorage.setItem("lastSubmittedRequest", JSON.stringify(requestToUpdate));
+          // Update the requestToUpdate object with new collectionNotes and collectionProof and status
+          const updatedRequest = {
+            ...requestToUpdate,
+            collectionNotes: note,
+            collectionProof: image,
+            status: "received",
+          };
+          setLastSubmittedRequest(updatedRequest);
+          sessionStorage.setItem("lastSubmittedRequest", JSON.stringify(updatedRequest));
+          // Update selectedRequest state to updatedRequest to reflect changes in modal
+          setSelectedRequest(updatedRequest);
         } else {
           // If requestToUpdate is undefined, create a minimal object with required fields and dummy values for missing required fields
           const minimalRequest: PickupRequest = {
@@ -202,6 +213,7 @@ const PickupRequestsPage: React.FC = () => {
           };
           setLastSubmittedRequest(minimalRequest);
           sessionStorage.setItem("lastSubmittedRequest", JSON.stringify(minimalRequest));
+          setSelectedRequest(minimalRequest);
         }
         setShowSubmittedDetails(true);
 
@@ -237,7 +249,7 @@ const PickupRequestsPage: React.FC = () => {
           delete newImages[id];
           return newImages;
         });
-        setSelectedRequest(null);
+        // Do not clear selectedRequest here to keep modal open with updated data
       } else {
         alert("Failed to submit collection proof: " + result.error);
       }
@@ -248,7 +260,7 @@ const PickupRequestsPage: React.FC = () => {
 
   if (loading) {
     return <div className="p-8">Loading your pickup tasks...</div>;
-  }
+  }  
 
   if (requests.length === 0) {
     return <div className="p-8">No pickup tasks assigned to you.</div>;
@@ -297,13 +309,30 @@ const PickupRequestsPage: React.FC = () => {
               &times;
             </button>
             <h2 className="text-xl font-bold mb-4">Pickup Request Details</h2>
-              <div className="mb-2"><strong>User Email:</strong> {selectedRequest.userEmail}</div>
-              <div className="mb-2"><strong>Receiver Phone:</strong> {selectedRequest.receiverPhone}</div>
-              <div className="mb-2"><strong>E-waste Type:</strong> {selectedRequest.recycleItem}</div>
-              {/* <div className="mb-2"><strong>Pickup Address:</strong> {selectedRequest.address}</div> */}
-              <div className="mb-2"><strong>Status:</strong> {selectedRequest.status}</div>
+            <div className="mb-2"><strong>Name:</strong> {selectedRequest.fullName || "N/A"}</div>
+            <div className="mb-2"><strong>Phone:</strong> {selectedRequest.preferredContactNumber || "N/A"}</div>
+            <div className="mb-2"><strong>Category:</strong> {selectedRequest.category || "N/A"}</div>
+            <div className="mb-2"><strong>Model:</strong> {selectedRequest.recycleItem || "N/A"}</div>
+            <div className="mb-2"><strong>Device Condition:</strong> {selectedRequest.deviceCondition || "N/A"}</div>
             <div className="mb-2">
-              <strong>Collection Notes:</strong>
+              <strong>Image Uploaded:</strong>{" "}
+              {selectedRequest.collectionProof ? (
+                <img
+                  src={selectedRequest.collectionProof}
+                  alt="Device"
+                  className="max-w-xs max-h-48"
+                />
+              ) : (
+                "No image uploaded"
+              )}
+            </div>
+            <div className="mb-2"><strong>Pickup Date:</strong> {selectedRequest.pickupDate || "N/A"}</div>
+            <div className="mb-2"><strong>Pickup Time:</strong> {selectedRequest.pickupTime || "N/A"}</div>
+            <div className="mb-2"><strong>Pickup Address:</strong> {selectedRequest.address || "N/A"}</div>
+            <div className="mb-2"><strong>Preferred Contact Number:</strong> {selectedRequest.preferredContactNumber || "N/A"}</div>
+            <div className="mb-2"><strong>Alternate Contact Number:</strong> {selectedRequest.alternateContactNumber || "N/A"}</div>
+            <div className="mb-2"><strong>Special Pickup Instructions:</strong> {selectedRequest.specialInstructions || "None"}</div>
+            <div className="mb-2"><strong>Collection Notes:</strong>
               {(selectedRequest.status === "collected" || selectedRequest.status === "received" || selectedRequest.status === "received by recycler") && !editMode ? (
                 <p>{selectedRequest.collectionNotes ? selectedRequest.collectionNotes : "No notes provided."}</p>
               ) : (
@@ -347,7 +376,8 @@ const PickupRequestsPage: React.FC = () => {
       )}
 
       {/* Modal to show submitted details once */}
-      {showSubmittedDetails && lastSubmittedRequest && (
+      {/* Removed the "Submitted Pickup Request Details" modal as per user request */}
+      {/* {showSubmittedDetails && lastSubmittedRequest && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white rounded-lg p-6 max-w-lg w-full relative">
             <button
@@ -377,28 +407,34 @@ const PickupRequestsPage: React.FC = () => {
                 lastSubmittedRequest.collectionNotes || "No notes provided."
               )}
             </div>
-            {lastSubmittedRequest.collectionProof && !editMode ? (
+            {selectedRequest.status === "received" && selectedRequest.collectionProof && !editMode ? (
               <div className="mb-2">
                 <strong>Collection Proof:</strong>
                 <img
-                  src={lastSubmittedRequest.collectionProof}
+                  src={selectedRequest.collectionProof}
                   alt="Collection Proof"
                   className="max-w-xs max-h-48"
                 />
               </div>
             ) : (
               <React.Fragment>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleImageChange(lastSubmittedRequest._id, e)}
-                />
-                <button
-                  onClick={() => submitCollectionProof(lastSubmittedRequest._id)}
-                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 mt-2"
-                >
-                  {editMode ? "Update Collection Proof" : "E Waste Received"}
-                </button>
+                {selectedRequest.status !== "received" && (
+                  <>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleImageChange(selectedRequest._id, e)}
+                    />
+                    {!selectedRequest.collectionProof && (
+                      <button
+                        onClick={() => submitCollectionProof(selectedRequest._id)}
+                        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 mt-2"
+                      >
+                        E Waste Received
+                      </button>
+                    )}
+                  </>
+                )}
               </React.Fragment>
             )}
             <button
@@ -409,7 +445,7 @@ const PickupRequestsPage: React.FC = () => {
             </button>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };
