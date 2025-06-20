@@ -1,0 +1,58 @@
+[
+  {
+    "name": "VEDANTH SHETTY",
+    "email": "vedanth4@gmail.com",
+    "phone": "09686888106",
+    "password": "shetty",
+    "id": "user-1746384119635",
+    "createdAt": "2025-05-04T18:41:59.635Z",
+    "approved": false
+  },
+  {
+    "name": "user1",
+    "email": "user1@123",
+    "phone": "1234567890",
+    "password": "user1",
+    "id": "user-1746814660592",
+    "createdAt": "2025-05-09T18:17:40.592Z",
+    "approved": false
+  },
+  {
+    "name": "user2",
+    "email": "user2@123",
+    "phone": "1234567890",
+    "password": "user2",
+    "id": "user-1746814697966",
+    "createdAt": "2025-05-09T18:18:17.966Z",
+    "approved": false
+  },
+  {
+    "name": "receiver2",
+    "email": "receiver2@123",
+    "phone": "1234567890",
+    "password": "receiver2",
+    "id": "user-1746814785760",
+    "createdAt": "2025-05-09T18:19:45.760Z",
+    "approved": false
+  },
+  {
+    "name": "receiver4",
+    "email": "receiver4@123",
+    "phone": "1234567890",
+    "password": "receiver4",
+    "id": "user-1746815022991",
+    "createdAt": "2025-05-09T18:23:42.991Z",
+    "approved": false
+  },
+  {
+  "name": "Admin User",
+  "email": "admin@local.com",
+  "phone": "0987654321",
+  "password": "admin123",
+  "id": "user-admin-0001",
+  "createdAt": "2025-05-10T00:00:00.000Z",
+  "approved": true,
+  "role": "admin"
+}
+
+]

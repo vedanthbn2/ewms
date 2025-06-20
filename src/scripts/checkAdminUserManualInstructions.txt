@@ -1,0 +1,23 @@
+To manually check if the admin user exists in your MongoDB database, follow these steps:
+
+1. Open your MongoDB shell or use a MongoDB GUI tool like MongoDB Compass.
+
+2. Connect to your database.
+
+3. Run the following query in the "users" collection (or the collection where your User model stores data):
+
+```js
+db.users.find({ email: "admin@local.com" }).pretty()
+```
+
+4. Check if a document is returned with the email "admin@local.com".
+
+5. Verify the "password" field contains a hashed string (not the plain password).
+
+If the document does not exist, the admin user was not created.
+
+If the document exists but login still fails, the password hash might not match the plain password "admin123".
+
+You can delete the existing admin user document and re-run the admin creation script to recreate it.
+
+If you need help with any of these steps, please let me know.

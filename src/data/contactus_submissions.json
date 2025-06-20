@@ -1,0 +1,83 @@
+[
+  {
+    "_id": "mavhzpa9.dm",
+    "name": "shetty",
+    "email": "shetty@gmail.com",
+    "phone": "9686888106",
+    "message": "\"Your service was very good. The website is easy to use, and the e-waste pickup request process was smooth and hassle-free. I appreciate the initiative to help manage electronic waste responsibly. Keep up the great work!\"",
+    "adminResponse": "hello",
+    "createdAt": "2025-05-19T19:48:24.129Z"
+  },
+  {
+    "_id": "mavi14je.zp",
+    "name": "virat kohli",
+    "email": "viratkohli@gmail.com",
+    "phone": "9686888106",
+    "message": "\"The service was good overall, but the response time for pickup confirmation could be improved. It took longer than expected to get a status update on my request. Faster communication would make the experience even better.\"",
+    "adminResponse": "ok we will give good service further",
+    "createdAt": "2025-05-19T19:49:30.554Z"
+  },
+  {
+    "_id": "mc3o7lbv.0pb",
+    "name": "Vedanth Shetty",
+    "email": "vedanth4@gmail.com",
+    "phone": "09686888106",
+    "message": "hello sir i want help!!!!",
+    "adminResponse": "hii please tell me",
+    "createdAt": "2025-06-19T17:44:21.691Z"
+  },
+  {
+    "_id": "mc3pl9t6.b8d",
+    "name": "vedanth",
+    "email": "viratkohli@gmail.com",
+    "phone": "09686888106",
+    "message": "hello sir i want help!!!!",
+    "adminResponse": "tell",
+    "createdAt": "2025-06-19T18:22:59.562Z"
+  },
+  {
+    "_id": "mc3qr5y3.qg",
+    "name": "undefined",
+    "email": "viratkohli@gmail.com",
+    "phone": "9876543210",
+    "message": "hello",
+    "adminResponse": "hii",
+    "createdAt": "2025-06-19T18:55:34.107Z"
+  },
+  {
+    "_id": "mc3qyqqp.g8q",
+    "name": "undefined",
+    "email": "viratkohli@gmail.com",
+    "phone": "9876543210",
+    "message": "Good Service !!!!",
+    "adminResponse": "thank you",
+    "createdAt": "2025-06-19T19:01:27.649Z"
+  },
+  {
+    "_id": "mc3qytfs.6n7",
+    "name": "undefined",
+    "email": "viratkohli@gmail.com",
+    "phone": "9876543210",
+    "message": "Good Service !!!!",
+    "adminResponse": "thank you!!!",
+    "createdAt": "2025-06-19T19:01:31.144Z"
+  },
+  {
+    "_id": "mc3qyvuk.0k9",
+    "name": "undefined",
+    "email": "viratkohli@gmail.com",
+    "phone": "9876543210",
+    "message": "Good Service !!!!",
+    "adminResponse": "",
+    "createdAt": "2025-06-19T19:01:34.268Z"
+  },
+  {
+    "_id": "mc3qywv4.2oi",
+    "name": "undefined",
+    "email": "viratkohli@gmail.com",
+    "phone": "9876543210",
+    "message": "Good Service !!!!",
+    "adminResponse": "",
+    "createdAt": "2025-06-19T19:01:35.584Z"
+  }
+]

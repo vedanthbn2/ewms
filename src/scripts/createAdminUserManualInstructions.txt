@@ -1,0 +1,57 @@
+To manually create the admin user with the correct credentials in your MongoDB database, follow these steps:
+
+1. Open a terminal in your project directory.
+
+2. Create a new file named createAdminUser.js with the following content:
+
+```js
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
+const User = require("../app/models/User").default; // Adjust path if needed
+const dbConnect = require("../app/api/mongodb").default; // Adjust path if needed
+
+async function createAdminUser() {
+  try {
+    await dbConnect();
+
+    const email = "admin@local.com";
+    const existingAdmin = await User.findOne({ email });
+    if (existingAdmin) {
+      console.log("Admin user already exists.");
+      process.exit(0);
+    }
+
+    const password = "admin123";
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const adminUser = new User({
+      name: "Admin",
+      email,
+      phone: "1234567890",
+      password: hashedPassword,
+      approved: true,
+    });
+
+    await adminUser.save();
+    console.log("Admin user created successfully.");
+    process.exit(0);
+  } catch (error) {
+    console.error("Error creating admin user:", error);
+    process.exit(1);
+  }
+}
+
+createAdminUser();
+```
+
+3. Adjust the import paths for User model and dbConnect function if your project structure differs.
+
+4. Run the script using Node.js:
+
+```
+node createAdminUser.js
+```
+
+5. This will create the admin user with email "admin@local.com" and password "admin123".
+
+If you encounter any issues or need further assistance, please let me know.
